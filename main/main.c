@@ -19,6 +19,7 @@
 #include "nvs_flash.h"
 #include "wifi_manager.h"
 #include "usb_storage.h"
+#include "obd_bluetooth.h"
 
 
 
@@ -28,6 +29,8 @@ void app_main(void)
 
     // wifi_scan_and_connect();
     // usb_main_test();
+    obd_bt_init();
+    obd_start_polling(MAC_ADDRESS_OBD, 1000); // MAC ELM327 reale, intervallo 1000 ms
     
     
 }
