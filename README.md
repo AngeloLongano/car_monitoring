@@ -104,6 +104,55 @@ idf.py menuconfig
 * **Component config -> USB Host:** Abilitare driver MSC.
 * **Project Configuration:** Inserire SSID e Password dell'Hotspot e Indirizzo MAC dell'ELM327.
 
+### Configurare le credenziali Wi‑Fi (file locale, non versionato)
+
+Per motivi di sicurezza e praticità, le credenziali Wi‑Fi sono gestite tramite un file header locale che NON deve essere aggiunto al repository. Procedura consigliata:
+
+1. Creare il file `main/wifi_credentials.h` (locale, fuori da git) con il seguente template:
+
+```c
+#ifndef WIFI_CREDENTIALS_H
+#define WIFI_CREDENTIALS_H
+
+#include <stdbool.h>
+
+/* Reti conosciute: se direct_connect=true viene tentata la connessione diretta */
+typedef struct {
+    const char *ssid;
+    const char *password;
+    bool direct_connect; // true = prova connessione diretta senza scan
+} wifi_network_t;
+
+static const wifi_network_t KNOWN_NETWORKS[] = {
+    {"MyPhoneHotspot", "supersecretpass", true},
+    {"HomeWiFi", "home_password", false},
+    // Aggiungi altre reti qui
+};
+
+#define KNOWN_NETWORKS_COUNT (sizeof(KNOWN_NETWORKS) / sizeof(KNOWN_NETWORKS[0]))
+
+#endif // WIFI_CREDENTIALS_H
+```
+
+2. Assicurarsi che `main/wifi_credentials.h` sia elencato in `.gitignore` (es. `main/wifi_credentials.h`).
+3. Per sicurezza, impostare permessi restrittivi sul file (opzionale):
+
+```bash
+chmod 600 main/wifi_credentials.h
+```
+
+4. Compilare e flashare il firmware; controllare i log seriali con `idf.py monitor` per verificare che la board tenti la connessione alle reti elencate.
+
+Esempio comando build/flash/monitor:
+
+```bash
+idf.py build flash monitor
+```
+
+Note:
+- Mettere la rete hotspot del telefono come `direct_connect=true` se vuoi che la board provi a connettersi direttamente senza scandire ogni volta.
+- Non inserire password reali nel repository; usa questo file locale per tenere private le credenziali.
+
 ### 3. Build e Flash
 
 Collega l'ESP32-S3 tramite la porta **UART** (non quella USB OTG) per il flash.
@@ -125,8 +174,3 @@ Il server riceve i dati JSON. Esempio di configurazione Node-RED/InfluxDB:
 * **Endpoint:** `POST /api/telemetria`
 * **Formato JSON:** `{"ts": 1700000, "rpm": 2500, "speed": 85}`
 
----
-
-**Autore:** [Tuo Nome]
-**Università:** [Tua Università]
-**Anno:** 2024/2025

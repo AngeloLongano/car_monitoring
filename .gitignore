@@ -49,6 +49,9 @@ cmake_install.cmake
 install_manifest.txt
 CTestTestfile.cmake
 
+# WiFi credentials (not to be committed)
+main/wifi_credentials.h
+
 # Python environment files
 *.pyc
 *.pyo
